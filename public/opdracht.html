@@ -143,8 +143,8 @@ Wij zijn nieuw, dus ik beloof je geen gouden bergen. Wel open kaart, een coöper
         <a href="https://onelink.to/9txcf2" class="btn btn-primary">Word kandidaat via de app</a>
       </div>
       <div class="card">
-        <h3>Word gratis lid van SamenOntzorgen</h3>
-        <p class="card-lead">Meld je gratis aan. Je hoort als eerste van nieuwe opdrachten die bij je passen, je blijft op de hoogte van wat er speelt voor zzp'ers in de zorg, en je hoort bij de community van SamenOntzorgen. In een paar minuten geregeld.</p>
+        <h3>Wil je liever nog even kijken?</h3>
+        <p class="card-lead">Word gratis lid. Dan houden wij je op de hoogte van wat er speelt rond het zzp-schap, en van de opdrachten die beschikbaar komen.</p>
         <form id="form">
           <div class="field">
             <label for="naam">Naam</label>
@@ -153,6 +153,16 @@ Wij zijn nieuw, dus ik beloof je geen gouden bergen. Wel open kaart, een coöper
           <div class="field">
             <label for="functie">Functie</label>
             <input type="text" id="functie" name="functie" required placeholder="Bijvoorbeeld verzorgende IG" />
+          </div>
+          <div class="row">
+            <div class="field">
+              <label for="plaatsnaam">Plaatsnaam</label>
+              <input type="text" id="plaatsnaam" name="plaatsnaam" required autocomplete="address-level2" placeholder="Bijvoorbeeld Dordrecht" />
+            </div>
+            <div class="field">
+              <label for="afstand">Max. kilometers vanaf plaatsnaam</label>
+              <input type="number" id="afstand" name="afstand" required min="0" step="1" inputmode="numeric" placeholder="Bijvoorbeeld 25" />
+            </div>
           </div>
           <div class="field">
             <label for="email">E-mailadres</label>
@@ -175,8 +185,8 @@ Wij zijn nieuw, dus ik beloof je geen gouden bergen. Wel open kaart, een coöper
     <div class="steps">
       <div class="step">
         <div class="n">1</div>
-        <h3>Laat je gegevens achter</h3>
-        <p>Word kandidaat in de app als je opdrachten wilt ontvangen, of word gratis lid en blijf op de hoogte. Allebei kosten ze niets.</p>
+        <h3>Kies je route</h3>
+        <p>Download de app en schrijf je in als je aan de slag wilt, of word gratis lid als je eerst wilt kijken.</p>
       </div>
       <div class="step">
         <div class="n">2</div>
@@ -220,7 +230,9 @@ Wij zijn nieuw, dus ik beloof je geen gouden bergen. Wel open kaart, een coöper
         naam: form.naam.value,
         email: form.email.value,
         bericht: 'Nieuw gratis lid via de opdracht-landingspagina.\n' +
-                 'Functie: ' + form.functie.value
+                 'Functie: ' + form.functie.value + '\n' +
+                 'Plaatsnaam: ' + form.plaatsnaam.value + '\n' +
+                 'Max. kilometers vanaf plaatsnaam: ' + form.afstand.value + ' km'
       };
       try {
         var res = await fetch('/contact', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(data) });
