@@ -62,12 +62,11 @@
     font:inherit;font-weight:600;font-size:1rem;cursor:pointer;text-align:center;}
   .btn-primary{background:var(--teal-deep);color:#fff;width:100%;}
   .btn-primary:hover{background:#0b6560;}
-  .btn-secondary{background:transparent;color:var(--ink);border-color:var(--line-strong);}
-  .btn-secondary:hover{border-color:var(--ink);}
   .note{margin-top:15px;padding:12px 15px;border-radius:8px;font-weight:500;font-size:.95rem;display:none;}
   .note.show{display:block;background:var(--teal-wash);color:var(--teal-ink);}
-  .secondary{text-align:center;margin-top:26px;}
-  .secondary p{font-size:.95rem;color:var(--muted);margin:0 0 13px;}
+  .blocks{display:flex;flex-direction:column;gap:22px;}
+  .card h3{font-size:1.3rem;margin-bottom:10px;}
+  .card-lead{color:var(--muted);margin:0 0 22px;}
 
   /* steps */
   .steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:1px;
@@ -123,7 +122,7 @@
       <div class="avatar"><img src="data:image/jpeg;base64,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" alt="Wim Moddejongen" /></div>
       <div>
         <p>Hoi, ik ben Wim Moddejongen, oprichter van SamenOntzorgen. Ik kom zelf niet uit de zorg, maar ik liep aan tegen hoe duur en hoe rommelig de inhuur van zorg is geregeld, met bureaus die een flink deel van het tarief pakken en zelfstandigen die aan de kant komen te staan. Dat kan eerlijker.</p>
-        <p>Daarom bouw ik SamenOntzorgen, een coöperatie van en voor zelfstandige zorgverleners. Geen bureau ertussen dat aan jouw uren verdient, jij werkt rechtstreeks voor de cliënt, met een vast en transparant tarief, en je papieren zijn geregeld. We zijn nieuw en bouwen dit samen op, met de mensen die het werk doen.</p>
+        <p>Daarom bouw ik SamenOntzorgen, een coöperatie van en voor zelfstandige zorgverleners. Je werkt rechtstreeks voor de cliënt, je bepaalt zelf je tarief, en we helpen je met de papieren. We zijn nieuw en bouwen dit op met de mensen die het werk doen.</p>
       </div>
     </div>
   </div>
@@ -133,36 +132,33 @@
   <div class="container">
     <div class="head">
       <div class="eyebrow">De opdracht</div>
-      <h2>Laat je gegevens achter</h2>
-      <p>Je kreeg van ons een bericht over een opdracht die bij je past. Heb je interesse, of wil je gewoon eens kennismaken? Laat hieronder je gegevens achter, dan neem ik of iemand van ons contact met je op. Je zit nergens aan vast.</p>
     </div>
-    <div class="card">
-      <form id="form">
-        <div class="field">
-          <label for="naam">Naam</label>
-          <input type="text" id="naam" name="naam" required autocomplete="name" />
-        </div>
-        <div class="row">
+    <div class="blocks">
+      <div class="card">
+        <h3>Wil je deze opdracht draaien?</h3>
+        <p class="card-lead">Om opdrachten te kunnen ontvangen word je kandidaat. Dat regel je in de app. Daar zet je je cv, je diploma's en je papieren erbij, zodat wij je aan de juiste opdracht kunnen koppelen. Je bent in een paar minuten klaar.</p>
+        <a href="https://onelink.to/9txcf2" class="btn btn-primary">Word kandidaat via de app</a>
+      </div>
+      <div class="card">
+        <h3>Liever eerst kennismaken?</h3>
+        <p class="card-lead">Laat je gegevens achter, dan nemen wij contact met je op. Je wordt dan lid, dat kost niets en je zit nergens aan vast. Je hoort het van ons als er werk is dat bij je past.</p>
+        <form id="form">
+          <div class="field">
+            <label for="naam">Naam</label>
+            <input type="text" id="naam" name="naam" required autocomplete="name" />
+          </div>
           <div class="field">
             <label for="functie">Functie</label>
             <input type="text" id="functie" name="functie" required placeholder="Bijvoorbeeld verzorgende IG" />
           </div>
           <div class="field">
-            <label for="regio">Regio</label>
-            <input type="text" id="regio" name="regio" required placeholder="Bijvoorbeeld regio Rotterdam" />
+            <label for="email">E-mailadres</label>
+            <input type="email" id="email" name="email" required autocomplete="email" />
           </div>
-        </div>
-        <div class="field">
-          <label for="email">E-mailadres</label>
-          <input type="email" id="email" name="email" required autocomplete="email" />
-        </div>
-        <button type="submit" class="btn btn-primary">Ja, ik heb interesse</button>
-        <div id="note" class="note"></div>
-      </form>
-    </div>
-    <div class="secondary">
-      <p>Liever meteen aanmelden via onze app? Dat kan ook, dan word je direct kandidaat.</p>
-      <a href="https://onelink.to/9txcf2" class="btn btn-secondary">Aanmelden via de app</a>
+          <button type="submit" class="btn btn-primary">Ja, ik heb interesse</button>
+          <div id="note" class="note"></div>
+        </form>
+      </div>
     </div>
   </div>
 </section>
@@ -171,23 +167,23 @@
   <div class="container">
     <div class="head">
       <div class="eyebrow">Zo werkt het</div>
-      <h2>Drie stappen, geen kleine lettertjes</h2>
+      <h2>Drie stappen, zwart op wit</h2>
     </div>
     <div class="steps">
       <div class="step">
         <div class="n">1</div>
         <h3>Laat je gegevens achter</h3>
-        <p>Via het formulier of direct via de app. Kost niets, verplicht je tot niets.</p>
+        <p>Word kandidaat in de app als je opdrachten wilt ontvangen, of laat eerst je gegevens achter en word lid. Allebei kosten ze niets.</p>
       </div>
       <div class="step">
         <div class="n">2</div>
         <h3>Wij brengen je in contact met de cliënt</h3>
-        <p>Jullie bespreken zelf of het klikt. Jij houdt de regie over je agenda en je uren.</p>
+        <p>Jullie bespreken zelf of het klikt. Jij beslist zelf over je agenda en je uren.</p>
       </div>
       <div class="step">
         <div class="n">3</div>
         <h3>Je gaat aan de slag</h3>
-        <p>Met een vast, transparant tarief en afspraken zwart op wit. Wij rekenen geen marge op je zorgtarief.</p>
+        <p>Je bepaalt zelf je tarief en de afspraken staan zwart op wit.</p>
       </div>
     </div>
   </div>
@@ -203,7 +199,8 @@
       <text x="165" y="112" font-family="Arial, Helvetica, sans-serif" font-weight="bold" font-size="78" letter-spacing="-1"><tspan fill="#ffffff">Samen</tspan><tspan fill="#19ada7">Ontzorgen</tspan></text>
       <text x="166" y="152" font-family="Arial, Helvetica, sans-serif" font-style="italic" font-weight="500" font-size="32" fill="#19ada7">Minder zorgen, meer zorg</text>
     </svg>
-    <p class="tagline">Een coöperatie van en voor zorgprofessionals. Kostprijs plus servicebijdrage: geen marge, geen kleine lettertjes.</p>
+    <p class="tagline">Een coöperatie van en voor zorgprofessionals. Open kaart, alles helder op een rij.</p>
+    <p class="tagline">Coöperatie SamenOntzorgen U.A. &middot; KvK: 96745886 &middot; Vestigingsnummer: 000062049658<br />Hoofdvestiging: Wijnstraat 75, 3311 BT Dordrecht<br />Vragen vooraf? Mail gerust. <a href="mailto:info@samenontzorgen.nl">info@samenontzorgen.nl</a></p>
     <div class="bottom">&copy; 2026 Coöperatie SamenOntzorgen U.A. &middot; <a href="https://samenontzorgen.nl">samenontzorgen.nl</a> &middot; Minder zorgen, meer zorg</div>
   </div>
 </footer>
@@ -220,8 +217,7 @@
         naam: form.naam.value,
         email: form.email.value,
         bericht: 'Interesse via de losse landingspagina (opdracht).\n' +
-                 'Functie: ' + form.functie.value + '\n' +
-                 'Regio: ' + form.regio.value
+                 'Functie: ' + form.functie.value
       };
       try {
         var res = await fetch('/contact', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(data) });
