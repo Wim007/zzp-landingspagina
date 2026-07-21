@@ -151,6 +151,16 @@
             <label for="functie">Functie</label>
             <input type="text" id="functie" name="functie" required placeholder="Bijvoorbeeld verzorgende IG" />
           </div>
+          <div class="row">
+            <div class="field">
+              <label for="plaatsnaam">Plaatsnaam</label>
+              <input type="text" id="plaatsnaam" name="plaatsnaam" required autocomplete="address-level2" placeholder="Bijvoorbeeld Dordrecht" />
+            </div>
+            <div class="field">
+              <label for="afstand">Max. kilometers vanaf plaatsnaam</label>
+              <input type="number" id="afstand" name="afstand" required min="0" step="1" inputmode="numeric" placeholder="Bijvoorbeeld 25" />
+            </div>
+          </div>
           <div class="field">
             <label for="email">E-mailadres</label>
             <input type="email" id="email" name="email" required autocomplete="email" />
@@ -217,7 +227,9 @@
         naam: form.naam.value,
         email: form.email.value,
         bericht: 'Nieuw gratis lid via de opdracht-landingspagina.\n' +
-                 'Functie: ' + form.functie.value
+                 'Functie: ' + form.functie.value + '\n' +
+                 'Plaatsnaam: ' + form.plaatsnaam.value + '\n' +
+                 'Max. kilometers vanaf plaatsnaam: ' + form.afstand.value + ' km'
       };
       try {
         var res = await fetch('/contact', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(data) });
