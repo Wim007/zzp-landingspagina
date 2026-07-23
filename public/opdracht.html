@@ -2,8 +2,9 @@
 <html lang="nl">
 <head>
 <meta charset="UTF-8" />
-<title>Even voorstellen — SamenOntzorgen</title>
+<title>Zorgvraag voor jou — SamenOntzorgen</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="robots" content="noindex" />
 <style>
   :root{
     --paper:#fbfaf7; --sand:#f3f0ea; --card:#ffffff;
@@ -35,9 +36,9 @@
   /* hero */
   .hero{background:var(--ink);color:var(--on-ink);}
   .hero .eyebrow{color:var(--teal);}
-  .hero h1{color:var(--on-ink);font-size:clamp(2rem,4.6vw,3.25rem);max-width:15em;}
+  .hero h1{color:var(--on-ink);font-size:clamp(2rem,4.6vw,3.25rem);max-width:18em;margin-top:14px;}
 
-  /* intro */
+  /* intro met foto */
   .intro{display:flex;gap:32px;align-items:flex-start;}
   .avatar{width:116px;height:116px;border-radius:50%;overflow:hidden;flex-shrink:0;
     background:var(--teal-wash);border:1px solid var(--line);}
@@ -45,37 +46,59 @@
   .intro p{margin:0 0 16px;color:var(--ink);}
   .intro p:last-child{margin-bottom:0;}
 
-  /* form section */
+  /* proza secties */
   .bg-sand{background:var(--sand);}
+  .prose{max-width:680px;}
+  .prose h2{font-size:clamp(1.5rem,2.8vw,2rem);margin-bottom:18px;}
+  .prose p{color:var(--muted);margin:0 0 16px;}
+  .prose p:last-child{margin-bottom:0;}
+
+  /* tarief voorbeeld */
+  .tariff-list{list-style:none;padding:0;margin:24px 0;border:1px solid var(--line);
+    border-radius:var(--radius);overflow:hidden;}
+  .tariff-list li{display:flex;justify-content:space-between;padding:13px 18px;
+    font-size:1rem;border-bottom:1px solid var(--line);}
+  .tariff-list li:last-child{border-bottom:none;font-weight:700;background:var(--teal-wash);
+    color:var(--teal-ink);}
+  .tariff-list li:last-child .t-label{font-weight:700;}
+  .t-label{color:var(--ink);}
+  .t-val{font-weight:600;color:var(--ink);}
+
+  /* voordelen lijst */
+  .benefit-list{list-style:none;padding:0;margin:22px 0 0;
+    display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+  .benefit-list li{display:flex;align-items:flex-start;gap:10px;
+    padding:10px 14px;border-radius:8px;background:var(--teal-wash);
+    font-size:.97rem;color:var(--teal-ink);line-height:1.4;}
+  .benefit-list li::before{content:"";display:inline-block;flex-shrink:0;
+    width:16px;height:16px;margin-top:2px;
+    background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%230e7c76' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 13l4 4L19 7'/%3E%3C/svg%3E") no-repeat center/contain;}
+
+  /* formulier sectie */
   .head{text-align:center;max-width:40em;margin:0 auto 36px;}
   .head h2{font-size:clamp(1.6rem,3.2vw,2.2rem);margin-bottom:12px;}
   .head p{color:var(--muted);margin:0;}
   .card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);
-    box-shadow:var(--shadow);padding:clamp(26px,4vw,42px);max-width:640px;margin:0 auto;}
+    box-shadow:var(--shadow);padding:clamp(26px,4vw,42px);max-width:600px;margin:0 auto;}
   .field{margin-bottom:18px;}
   .field label{display:block;font-size:.9rem;font-weight:600;margin-bottom:7px;}
   .field input{width:100%;padding:13px 15px;border:1px solid var(--line-strong);border-radius:9px;
     font:inherit;font-size:1rem;background:#fff;color:var(--ink);}
   .field input:focus{outline:2px solid var(--teal);outline-offset:1px;border-color:var(--teal);}
-  .row{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
   .btn{display:inline-block;border:1px solid transparent;border-radius:10px;padding:14px 26px;
     font:inherit;font-weight:600;font-size:1rem;cursor:pointer;text-align:center;}
   .btn-primary{background:var(--teal-deep);color:#fff;width:100%;}
   .btn-primary:hover{background:#0b6560;}
   .note{margin-top:15px;padding:12px 15px;border-radius:8px;font-weight:500;font-size:.95rem;display:none;}
   .note.show{display:block;background:var(--teal-wash);color:var(--teal-ink);}
-  .blocks{display:flex;flex-direction:column;gap:22px;}
-  .card h3{font-size:1.3rem;margin-bottom:10px;}
-  .card-lead{color:var(--muted);margin:0 0 22px;}
+  .reassure{color:var(--muted);font-size:.9rem;margin:14px 0 0;text-align:center;}
 
-  /* steps */
-  .steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:1px;
-    background:var(--line);border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;margin-top:44px;}
-  .step{background:var(--card);padding:clamp(24px,3vw,34px);}
-  .step .n{font-family:var(--serif);font-size:1.5rem;color:var(--teal-deep);}
-  .step .n::after{content:"";display:block;width:26px;height:2px;background:var(--teal);margin:10px 0 16px;}
-  .step h3{font-size:1.12rem;margin-bottom:8px;}
-  .step p{color:var(--muted);font-size:.96rem;margin:0;}
+  /* app-link onderaan */
+  .app-link-section{text-align:center;padding:clamp(24px,4vw,48px) 0;}
+  .app-link-section p{color:var(--muted);margin:0 0 10px;font-size:.97rem;}
+  .app-link-section a{color:var(--teal-deep);font-weight:600;font-size:.97rem;
+    text-decoration:underline;text-underline-offset:3px;}
+  .app-link-section a:hover{color:var(--teal-ink);}
 
   /* footer */
   footer{background:var(--ink);color:var(--on-ink-dim);}
@@ -89,11 +112,12 @@
   @media (max-width:640px){
     .intro{flex-direction:column;gap:22px;}
     .avatar{width:88px;height:88px;}
-    .row{grid-template-columns:1fr;}
+    .benefit-list{grid-template-columns:1fr;}
   }
 </style>
 </head>
 <body>
+
 <header class="nav">
   <div class="container">
     <a href="https://samenontzorgen.nl" aria-label="SamenOntzorgen">
@@ -111,65 +135,30 @@
 
 <section class="hero">
   <div class="container">
-    <div class="eyebrow">Voor zzp'ers in de zorg</div>
-    <h1>Even voorstellen, dit is wie er achter SamenOntzorgen zit</h1>
+    <div class="eyebrow">Voor jou als zorgverlener</div>
+    <h1>Je kreeg van ons een bericht over een zorgvraag die bij je past</h1>
   </div>
 </section>
 
 <section>
-  <div class="container narrow">
-    <div class="intro">
-      <div class="avatar"><img src="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBAUEBAYFBQUGBgYHCQ4JCQgICRINDQoOFRIWFhUSFBQXGiEcFxgfGRQUHScdHyIjJSUlFhwpLCgkKyEkJST/2wBDAQYGBgkICREJCREkGBQYJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCT/wAARCAFAAUADASIAAhEBAxEB/8QAHAABAAEFAQEAAAAAAAAAAAAAAAECAwQFBgcI/8QAQBAAAQMCBAQDBQcDAgQHAAAAAQACAwQRBRIhMQZBUWETInEHFDKBkSNCobHB0fAVUmIz4QgkU4IWNENUcpKi/8QAGgEBAAMBAQEAAAAAAAAAAAAAAAECBAMFBv/EACERAQEAAgICAgMBAAAAAAAAAAABAhEDIRIxBEETIlEU/9oADAMBAAIRAxEAPwD5WREQEREBERAREQEREBERAREQEREBERAREQEREBERAREQEREBERAREQEREBERAREQEREEXS6hEE3S6hEE3S6hEE3S6hEE3S6hEE3S6hEE3S6hEE3S6hEE3S6hEE3S6hEE3S6hEE3S6hEE3S6hEE3S6hEE3S6hEE3S6hEE3S6hEE3S6hEE3S6hEE3S6hEBERAREQEREBERAREQEREBERAREQEREBERAREQEREBERAREQEREBERAREQEREBERAREQEREBERAREQEREBERAREQEREBERARTa26hAREQEREBERAREQEREBERAREQEREBERAREQEREBERAREQEREBERAREQEREBEU7IIVTGucfICT23WZhtBVYnUCnp4TI8C9gwaBd3gXC7aRrWSQtnnDs0jWC4B5Au7dAq5ZyLTG1w9Fg1dXvDWU8lv7iNAujpODI4mWqpRK+3/pjLb5nceq7R1C4OyeVhFvK22nyCR0Di6zs4J5kXXL8lq8wkcn/AODaF/lsWG2+fn/OyxKzgN0OrXyMbvmLQ4H5hd07DYz5s1yBc3J16adVZFORma15bcXsDp9FHnYnwleX1uAVtOb5BKOseoAWtfG+M2e0tPQiy9ddRslu2Rjb8nhYVbwvDUx3fG0tIsXAbeqvORW4PLEW6x7hqpwZ4cWh8Dz5Xt1Hp6rUAX8h0IK6S7c1CKSC0kFQpBERAREQEREBERAREQEREBERAREQEREB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" alt="Wim Moddejongen" /></div>
-      <div>
-        <p>Hoi, ik ben Wim Moddejongen, oprichter van SamenOntzorgen. Misschien herken je dit. Je agenda loopt langzaam leeg. Opdrachtgevers bellen niet meer, of ze vragen of je niet in loondienst wilt komen. En ergens sluipt de vraag erin of jij iets verkeerd doet. Dat doe je niet.</p>
-        <p>Bij veel instellingen zit de deur voor zelfstandigen dicht. Daarom lopen wij een andere weg, en koppelen we je rechtstreeks aan mensen met een persoonsgebonden budget. Daar kiest de cliënt zelf wie er over de vloer komt.</p>
-        <p>Elke cliënt is een eigen opdrachtgever. Werk je voor meerdere cliënten, dan heb je meerdere opdrachtgevers, en juist dat maakt jouw ondernemerschap aantoonbaar sterk. Je bepaalt zelf je tarief, en je bouwt aan een agenda die weer vol kan lopen.</p>
-        <p>Wij zijn nieuw, dus ik beloof je geen gouden bergen. Wel open kaart, een coöperatie van de leden zelf met stemrecht over de koers, en dat wij vanaf je aanmelding voor je aan de slag gaan.</p>
-      </div>
+  <div class="container">
+    <div class="prose narrow">
+      <h2>Wie wij zijn en waarom je dit bericht kreeg</h2>
+      <p>Wij zijn SamenOntzorgen, een coöperatie van en voor zelfstandige zorgverleners. Wij zochten iemand die past bij een concrete zorgvraag van een budgethouder met een persoonsgebonden budget uit de Wet langdurige zorg, kortweg Wlz. Op basis van je vak en je regio kwamen we bij jou uit.</p>
     </div>
   </div>
 </section>
 
 <section class="bg-sand">
   <div class="container">
-    <div class="head">
-      <div class="eyebrow">De opdracht</div>
-    </div>
-    <div class="blocks">
-      <div class="card">
-        <h3>Heb je interesse in deze opdracht?</h3>
-        <p class="card-lead">Wil je snel aan de slag? Download de app en schrijf je in.</p>
-        <a href="https://onelink.to/9txcf2" class="btn btn-primary">Download de app</a>
+    <div class="eyebrow">Even voorstellen</div>
+    <div class="intro narrow">
+      <div class="avatar">
+        <!-- TODO: vervang door een echt afbeeldingsbestand of geef het pad hieronder op -->
+        <img src="" alt="Wim Moddejongen" onerror="this.style.display='none';this.parentElement.style.background='var(--teal-wash)';this.parentElement.setAttribute('aria-label','Foto van Wim volgt nog');" />
       </div>
-      <div class="card">
-        <h3>Wil je liever nog even kijken?</h3>
-        <p class="card-lead">Word gratis lid. Dan houden wij je op de hoogte van wat er speelt rond het zzp-schap, en van de opdrachten die beschikbaar komen.</p>
-        <form id="form">
-          <div class="field">
-            <label for="naam">Naam</label>
-            <input type="text" id="naam" name="naam" required autocomplete="name" />
-          </div>
-          <div class="field">
-            <label for="functie">Functie</label>
-            <input type="text" id="functie" name="functie" required placeholder="Bijvoorbeeld verzorgende IG" />
-          </div>
-          <div class="row">
-            <div class="field">
-              <label for="plaatsnaam">Plaatsnaam</label>
-              <input type="text" id="plaatsnaam" name="plaatsnaam" required autocomplete="address-level2" placeholder="Bijvoorbeeld Dordrecht" />
-            </div>
-            <div class="field">
-              <label for="afstand">Max. kilometers vanaf plaatsnaam</label>
-              <input type="number" id="afstand" name="afstand" required min="0" step="1" inputmode="numeric" placeholder="Bijvoorbeeld 25" />
-            </div>
-          </div>
-          <div class="field">
-            <label for="email">E-mailadres</label>
-            <input type="email" id="email" name="email" required autocomplete="email" />
-          </div>
-          <button type="submit" class="btn btn-primary">Word gratis lid</button>
-          <div id="note" class="note"></div>
-        </form>
+      <div>
+        <p>Ik ben Wim Moddejongen, oprichter van SamenOntzorgen. Ik kom zelf niet uit de zorg. Ik liep aan tegen hoe duur en hoe rommelig de inhuur van zorg is geregeld, en dat kan eerlijker. Daarom bouw ik SamenOntzorgen, met de mensen die het werk doen. We zijn nieuw en bouwen dit stap voor stap op.</p>
       </div>
     </div>
   </div>
@@ -177,29 +166,91 @@
 
 <section>
   <div class="container">
-    <div class="head">
-      <div class="eyebrow">Zo werkt het</div>
-      <h2>Drie stappen, zwart op wit</h2>
-    </div>
-    <div class="steps">
-      <div class="step">
-        <div class="n">1</div>
-        <h3>Kies je route</h3>
-        <p>Download de app en schrijf je in als je aan de slag wilt, of word gratis lid als je eerst wilt kijken.</p>
-      </div>
-      <div class="step">
-        <div class="n">2</div>
-        <h3>Wij brengen je in contact met de cliënt</h3>
-        <p>Jullie bespreken zelf of het klikt. Jij beslist zelf over je agenda en je uren.</p>
-      </div>
-      <div class="step">
-        <div class="n">3</div>
-        <h3>Je gaat aan de slag</h3>
-        <p>Je bepaalt zelf je tarief en de afspraken staan zwart op wit.</p>
-      </div>
+    <div class="prose narrow">
+      <h2>Hoe de samenwerking werkt</h2>
+      <p>Jij en de budgethouder sluiten samen een zorgovereenkomst. Je werkt dus rechtstreeks voor de cliënt. Jullie vullen ieder je eigen deel in het PGB Portaal in en ondertekenen dat zelf. Het zorgkantoor beoordeelt de overeenkomst en geeft de goedkeuring.</p>
     </div>
   </div>
 </section>
+
+<section class="bg-sand">
+  <div class="container">
+    <div class="prose narrow">
+      <h2>Wie het uurtarief bepaalt</h2>
+      <p>Jij bepaalt zelf welk uurtarief je voor je werk wilt ontvangen. Daar komt de bijdrage van SamenOntzorgen bovenop, 6,05 euro inclusief btw per gewerkt uur. Dat totaal leggen we als één voorgesteld tarief voor aan de budgethouder.</p>
+      <ul class="tariff-list">
+        <li><span class="t-label">Jouw tarief</span><span class="t-val">45,00 euro</span></li>
+        <li><span class="t-label">Bijdrage SamenOntzorgen</span><span class="t-val">6,05 euro inclusief btw</span></li>
+        <li><span class="t-label">Voorgesteld tarief aan de budgethouder</span><span class="t-val">51,05 euro per uur</span></li>
+      </ul>
+      <p>De bijdrage komt er dus bovenop, hij gaat niet van jouw tarief af. En je betaalt hem pas over uren die daadwerkelijk zijn betaald. Geen betaalde uren betekent geen bijdrage.</p>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="container">
+    <div class="prose narrow">
+      <h2>Wat je voor die bijdrage krijgt</h2>
+      <ul class="benefit-list">
+        <li>de app en de matchingsoftware</li>
+        <li>onderhoud, beveiliging en doorontwikkeling</li>
+        <li>het zoeken en beoordelen van zorgvragen</li>
+        <li>controle van je documenten</li>
+        <li>hulp bij de kennismaking</li>
+        <li>hulp bij de zorgovereenkomst en de zorgbeschrijving</li>
+        <li>contractbeheer</li>
+        <li>urenverwerking</li>
+        <li>selfbilling, zodat je facturen kloppend klaarstaan</li>
+        <li>de mensen die dit werk voor je doen</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<section class="bg-sand">
+  <div class="container">
+    <div class="prose narrow">
+      <h2>Hulp bij de zorgovereenkomst</h2>
+      <p>Wil je het samen doorlopen? Dan helpen we jou en de budgethouder stap voor stap door de zorgovereenkomst en de zorgbeschrijving. De eindverantwoordelijkheid blijft bij de budgethouder en bij jou.</p>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="container">
+    <div class="head">
+      <h2>De volgende stap</h2>
+      <p>Wil je deze zorgvraag met ons bespreken? Laat je gegevens achter, dan nemen we contact met je op. Je zit nergens aan vast.</p>
+    </div>
+    <div class="card">
+      <form id="form">
+        <div class="field">
+          <label for="naam">Naam</label>
+          <input type="text" id="naam" name="naam" required autocomplete="name" />
+        </div>
+        <div class="field">
+          <label for="functie">Functie</label>
+          <input type="text" id="functie" name="functie" required placeholder="Bijvoorbeeld verzorgende IG" />
+        </div>
+        <div class="field">
+          <label for="email">E-mailadres</label>
+          <input type="email" id="email" name="email" required autocomplete="email" />
+        </div>
+        <button type="submit" class="btn btn-primary">Ik wil deze zorgvraag bespreken</button>
+        <div id="note" class="note"></div>
+        <p class="reassure">Je zit nergens aan vast. We nemen snel contact met je op.</p>
+      </form>
+    </div>
+  </div>
+</section>
+
+<div class="app-link-section">
+  <div class="container">
+    <p>Liever eerst zelf rondkijken? Je kunt je ook aanmelden via onze app.</p>
+    <a href="https://onelink.to/9txcf2">Aanmelden via de app</a>
+  </div>
+</div>
 
 <footer>
   <div class="container">
@@ -211,11 +262,12 @@
       <text x="165" y="112" font-family="Arial, Helvetica, sans-serif" font-weight="bold" font-size="78" letter-spacing="-1"><tspan fill="#ffffff">Samen</tspan><tspan fill="#19ada7">Ontzorgen</tspan></text>
       <text x="166" y="152" font-family="Arial, Helvetica, sans-serif" font-style="italic" font-weight="500" font-size="32" fill="#19ada7">Minder zorgen, meer zorg</text>
     </svg>
-    <p class="tagline">Een coöperatie van en voor zorgprofessionals. Open kaart, alles helder op een rij.</p>
-    <p class="tagline">Coöperatie SamenOntzorgen U.A. &middot; KvK: 96745886 &middot; Vestigingsnummer: 000062049658<br />Hoofdvestiging: Wijnstraat 75, 3311 BT Dordrecht<br />Vragen vooraf? Mail gerust. <a href="mailto:info@samenontzorgen.nl">info@samenontzorgen.nl</a></p>
+    <p class="tagline">We zijn nieuw en bouwen dit stap voor stap op. Een coöperatie van en voor zorgprofessionals. Open kaart, alles helder op een rij.</p>
+    <p class="tagline">Coöperatie SamenOntzorgen U.A. &middot; KvK: 96745886 &middot; Vestigingsnummer: 000062049658<br />Hoofdvestiging: Wijnstraat 75, 3311 BT Dordrecht<br />Vragen? <a href="mailto:info@samenontzorgen.nl">info@samenontzorgen.nl</a> &middot; <a href="tel:+31611234567">06 112 345 67</a></p>
     <div class="bottom">&copy; 2026 Coöperatie SamenOntzorgen U.A. &middot; <a href="https://samenontzorgen.nl">samenontzorgen.nl</a> &middot; Minder zorgen, meer zorg</div>
   </div>
 </footer>
+
 <script>
   (function(){
     var form = document.getElementById('form');
@@ -223,21 +275,18 @@
     form.addEventListener('submit', async function(e){
       e.preventDefault();
       var btn = form.querySelector('button[type="submit"]');
-      var orig = btn.textContent; btn.textContent = 'Versturen\u2026'; btn.disabled = true;
-      note.className = 'note';
+      var orig = btn.textContent; btn.textContent = 'Versturen…'; btn.disabled = true;
+      note.className = 'note'; note.style.background = ''; note.style.color = '';
       var data = {
         naam: form.naam.value,
         email: form.email.value,
-        bericht: 'Nieuw gratis lid via de opdracht-landingspagina.\n' +
-                 'Functie: ' + form.functie.value + '\n' +
-                 'Plaatsnaam: ' + form.plaatsnaam.value + '\n' +
-                 'Max. kilometers vanaf plaatsnaam: ' + form.afstand.value + ' km'
+        bericht: 'Verzoek om de zorgvraag te bespreken, via de ZZP-landingspagina.\nFunctie: ' + form.functie.value
       };
       try {
         var res = await fetch('/contact', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(data) });
         var j = await res.json();
         if (res.ok && j.success) {
-          note.textContent = 'Gelukt, je bent nu lid. Je hoort als eerste van opdrachten en ontwikkelingen die bij je passen.';
+          note.textContent = 'Bedankt. We nemen snel contact met je op.';
           note.className = 'note show'; form.reset();
         } else { throw new Error(j.message || 'fout'); }
       } catch (err) {
