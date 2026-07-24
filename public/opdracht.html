@@ -39,7 +39,9 @@
   .hero h1{color:var(--on-ink);font-size:clamp(2rem,4.6vw,3.25rem);max-width:18em;margin-top:14px;}
 
   /* intro met foto */
-  .intro{display:flex;gap:32px;align-items:flex-start;}
+  .intro-block > p{margin:0 0 16px;color:var(--ink);}
+  .intro-block > p:last-child{margin-bottom:0;}
+  .intro{display:flex;gap:32px;align-items:flex-start;margin:0 0 16px;}
   .avatar{width:116px;height:116px;border-radius:50%;overflow:hidden;flex-shrink:0;
     background:var(--teal-wash);border:1px solid var(--line);}
   .avatar img{width:100%;height:100%;object-fit:cover;}
@@ -152,14 +154,18 @@
 <section class="bg-sand">
   <div class="container">
     <div class="eyebrow">Even voorstellen</div>
-    <div class="intro narrow">
-      <div class="avatar">
-        <!-- TODO: vervang door een echt afbeeldingsbestand of geef het pad hieronder op -->
-        <img src="" alt="Wim Moddejongen" onerror="this.style.display='none';this.parentElement.style.background='var(--teal-wash)';this.parentElement.setAttribute('aria-label','Foto van Wim volgt nog');" />
+    <div class="intro-block narrow">
+      <p>Misschien herken je dit. Je agenda liep de afgelopen tijd langzaam leeg. Opdrachtgevers bellen minder, of vragen of je niet in loondienst wilt komen. Bij veel instellingen zit de deur voor zelfstandigen dicht, uit angst voor de regels. En ergens sluipt de vraag erin of jij iets verkeerd doet. Dat doe je niet.</p>
+      <div class="intro">
+        <div class="avatar">
+          <img src="/wim.jpg" alt="Wim Moddejongen" onerror="this.style.display='none';this.parentElement.style.background='var(--teal-wash)';this.parentElement.setAttribute('aria-label','Foto van Wim volgt nog');" />
+        </div>
+        <div>
+          <p>Ik ben Wim Moddejongen, oprichter van SamenOntzorgen. Ik wil dat je gewoon kunt blijven doen waar je goed in bent, zorgen voor mensen, zonder dat de regels je klemzetten. Daarom heb ik de coöperatie opgericht, van en voor de zelfstandigen zelf, waarin we gezamenlijk de koers bepalen.</p>
+        </div>
       </div>
-      <div>
-        <p>Ik ben Wim Moddejongen, oprichter van SamenOntzorgen. Ik kom zelf niet uit de zorg. Ik liep aan tegen hoe duur en hoe rommelig de inhuur van zorg is geregeld, en dat kan eerlijker. Daarom bouw ik SamenOntzorgen, met de mensen die het werk doen. We zijn nieuw en bouwen dit stap voor stap op.</p>
-      </div>
+      <p>De weg via zorginstellingen is voor veel zelfstandigen dichtgelopen. Er is een weg die nog wél openstaat, en die bovendien eenvoudiger is: rechtstreeks werken voor iemand met een persoonsgebonden budget. De cliënt kiest zelf wie er over de vloer komt en is zelf je opdrachtgever. Eén mens die beslist, in plaats van een commissie. Je werkt rechtstreeks, en we leggen alles per opdracht zwart op wit vast, juridisch aantoonbaar in orde.</p>
+      <p>Dit is de weg die wij openen, zodat je als zelfstandige aan het werk blijft, op je eigen manier, met ons ernaast. We zijn nieuw en bouwen dit stap voor stap op.</p>
     </div>
   </div>
 </section>
