@@ -20,10 +20,24 @@ const express = require('express');
 const path    = require('path');
 const fs      = require('fs');
 
-const opdrachten = require('./opdrachten');
-
 const app  = express();
 const PORT = process.env.PORT || 3000;
+
+// Achter de Railway-proxy: zodat req.protocol https teruggeeft.
+app.set('trust proxy', true);
+
+// De zorgvragen staan in een apart databestand, zodat je ze dagelijks kunt
+// toevoegen en weghalen zonder de code aan te raken. Het bestand wordt bij elk
+// verzoek vers gelezen, dus wijzigingen werken meteen door, ook zonder herstart.
+const OPDRACHTEN_FILE = path.join(__dirname, 'opdrachten.json');
+function loadOpdrachten() {
+  try {
+    return JSON.parse(fs.readFileSync(OPDRACHTEN_FILE, 'utf8'));
+  } catch (e) {
+    console.error('Kon opdrachten.json niet lezen:', e.message);
+    return {};
+  }
+}
 
 // De smartlink die de website ook gebruikt. Op een computer toont hij een
 // QR-code, op een telefoon stuurt hij door naar de juiste app store.
@@ -205,6 +219,81 @@ setInterval(processQueue, 60 * 1000);
 setTimeout(processQueue, 10 * 1000);
 
 // ---------------------------------------------------------------------------
+// Overzicht van zorgvragen, met kant-en-klare links om te delen
+// ---------------------------------------------------------------------------
+
+app.get('/overzicht', (req, res) => {
+  const opdrachten = loadOpdrachten();
+  const base = `${req.protocol}://${req.get('host')}`;
+  const codes = Object.keys(opdrachten);
+
+  const cards = codes.length
+    ? codes.map((code) => {
+        const link = `${base}/?opdracht=${encodeURIComponent(code)}`;
+        return `
+      <div class="kaart">
+        <div class="code">${escapeHtml(code)}</div>
+        <p class="oms">${escapeHtml(opdrachten[code])}</p>
+        <div class="linkrij">
+          <input class="linkveld" type="text" readonly value="${escapeHtml(link)}" onclick="this.select();" />
+          <button class="kopieer" type="button" data-link="${escapeHtml(link)}">Kopieer link</button>
+        </div>
+      </div>`;
+      }).join('')
+    : '<p class="leeg">Er staan op dit moment geen zorgvragen klaar.</p>';
+
+  res.send(`<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8" />
+<title>Overzicht zorgvragen</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="robots" content="noindex" />
+<style>
+  :root{--ink:#1c2b2d;--muted:#5d6763;--line:#e4e0d8;--teal:#0e7c76;--wash:#e6f4f2;--paper:#fbfaf7;}
+  *{box-sizing:border-box;}
+  body{margin:0;background:var(--paper);color:var(--ink);
+    font-family:system-ui,-apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;line-height:1.55;}
+  .wrap{max-width:820px;margin:0 auto;padding:32px 20px 60px;}
+  h1{font-size:1.6rem;margin:0 0 6px;}
+  .intro{color:var(--muted);margin:0 0 28px;}
+  .kaart{background:#fff;border:1px solid var(--line);border-radius:12px;padding:18px 20px;margin:0 0 16px;}
+  .code{display:inline-block;font-weight:700;font-size:.82rem;letter-spacing:.06em;text-transform:uppercase;
+    color:var(--teal);background:var(--wash);border-radius:6px;padding:4px 10px;margin-bottom:10px;}
+  .oms{margin:0 0 14px;color:var(--ink);}
+  .linkrij{display:flex;gap:8px;flex-wrap:wrap;}
+  .linkveld{flex:1;min-width:220px;padding:10px 12px;border:1px solid var(--line);border-radius:8px;
+    font:inherit;font-size:.9rem;color:var(--muted);background:#f7f6f2;}
+  .kopieer{border:none;background:var(--teal);color:#fff;border-radius:8px;padding:10px 16px;
+    font:inherit;font-weight:600;cursor:pointer;}
+  .kopieer:hover{background:#0b6560;}
+  .kopieer.ok{background:#146c3f;}
+  .leeg{color:var(--muted);}
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <h1>Overzicht zorgvragen</h1>
+    <p class="intro">Deel de link van een zorgvraag in je bericht. Iedereen die zich via die link aanmeldt, krijgt automatisch de bijbehorende informatie per mail. Voeg je in <strong>opdrachten.json</strong> een zorgvraag toe of haal je er een weg, dan verandert deze pagina vanzelf mee.</p>
+    ${cards}
+  </div>
+  <script>
+    document.querySelectorAll('.kopieer').forEach(function(btn){
+      btn.addEventListener('click', function(){
+        var link = btn.getAttribute('data-link');
+        navigator.clipboard.writeText(link).then(function(){
+          var orig = btn.textContent;
+          btn.textContent = 'Gekopieerd'; btn.classList.add('ok');
+          setTimeout(function(){ btn.textContent = orig; btn.classList.remove('ok'); }, 1600);
+        });
+      });
+    });
+  </script>
+</body>
+</html>`);
+});
+
+// ---------------------------------------------------------------------------
 // Formulier-endpoint
 // ---------------------------------------------------------------------------
 
@@ -231,6 +320,7 @@ app.post('/contact', async (req, res) => {
   }
 
   // Opdracht-code opzoeken.
+  const opdrachten = loadOpdrachten();
   const code = (opdracht || '').toString().trim().toLowerCase();
   const opdrachtText = opdrachten[code];
   const hasOpdracht = Boolean(opdrachtText);
