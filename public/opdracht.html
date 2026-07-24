@@ -279,16 +279,18 @@
       var btn = form.querySelector('button[type="submit"]');
       var orig = btn.textContent; btn.textContent = 'Versturen…'; btn.disabled = true;
       note.className = 'note'; note.style.background = ''; note.style.color = '';
+      var opdracht = new URLSearchParams(window.location.search).get('opdracht') || '';
       var data = {
         naam: form.naam.value,
         email: form.email.value,
-        bericht: 'Verzoek om de zorgvraag te bespreken, via de ZZP-landingspagina.\nFunctie: ' + form.functie.value
+        opdracht: opdracht,
+        bericht: 'Verzoek om informatie over de zorgvraag, via de ZZP-landingspagina.\nFunctie: ' + form.functie.value + (opdracht ? '\nOpdracht-code: ' + opdracht : '')
       };
       try {
         var res = await fetch('/contact', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(data) });
         var j = await res.json();
         if (res.ok && j.success) {
-          note.textContent = 'Bedankt. We nemen snel contact met je op.';
+          note.textContent = 'Bedankt. Je krijgt de informatie over de zorgvraag zo per mail.';
           note.className = 'note show'; form.reset();
         } else { throw new Error(j.message || 'fout'); }
       } catch (err) {

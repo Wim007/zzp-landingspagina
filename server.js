@@ -2,6 +2,11 @@
  * ZZP Opdracht landingspagina voor SamenOntzorgen.
  * Serveert opdracht.html en heeft een /contact-endpoint via Resend.
  *
+ * Bij een inzending:
+ *   1. Er gaat direct een melding naar het team (ongewijzigd gedrag).
+ *   2. De invuller krijgt na een vertraging van 20 tot 45 minuten automatisch
+ *      een welkomstmail met de informatie over de betreffende zorgvraag.
+ *
  * Benodigde environment-variabelen op Railway:
  *   RESEND_API_KEY = de API-sleutel van je gratis Resend-account (begint met re_)
  *   MAIL_TO        = ontvanger van de aanmeldingen (standaard info@samenontzorgen.nl)
@@ -13,9 +18,24 @@
  */
 const express = require('express');
 const path    = require('path');
+const fs      = require('fs');
+
+const opdrachten = require('./opdrachten');
 
 const app  = express();
 const PORT = process.env.PORT || 3000;
+
+// De smartlink die de website ook gebruikt. Op een computer toont hij een
+// QR-code, op een telefoon stuurt hij door naar de juiste app store.
+const APP_LINK = 'https://onelink.to/9txcf2';
+
+// Tekst voor de invuller als de opdracht-code ontbreekt of onbekend is.
+const OPDRACHT_FALLBACK =
+  'We zochten je uit op basis van je vak en je regio. We sturen je zo snel mogelijk de passende zorgvraag toe.';
+
+// Bestand-gebaseerde wachtrij zodat een geplande mail een herstart overleeft.
+const QUEUE_FILE = path.join(__dirname, 'pending-applicant-mails.json');
+const MAX_ATTEMPTS = 5;
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -26,12 +46,172 @@ app.get(['/', '/opdracht'], (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'opdracht.html'));
 });
 
-// Formulier-endpoint
-app.post('/contact', async (req, res) => {
+// ---------------------------------------------------------------------------
+// Hulpfuncties
+// ---------------------------------------------------------------------------
+
+function escapeHtml(value) {
+  return String(value == null ? '' : value)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
+// Vertraging tussen 20 en 45 minuten, in milliseconden.
+function delayMs() {
+  return Math.floor((20 + Math.random() * 25) * 60 * 1000);
+}
+
+// Verstuurt een mail via Resend. Gooit een fout als het misgaat.
+async function sendMail({ to, subject, html, replyTo }) {
   const apiKey   = process.env.RESEND_API_KEY;
-  const mailTo   = process.env.MAIL_TO   || 'info@samenontzorgen.nl';
   const mailFrom = process.env.MAIL_FROM || 'SamenOntzorgen <onboarding@resend.dev>';
-  const { naam, email, telefoon, bericht } = req.body;
+
+  if (!apiKey) {
+    throw new Error('RESEND_API_KEY ontbreekt.');
+  }
+
+  const response = await fetch('https://api.resend.com/emails', {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${apiKey}`,
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      from: mailFrom,
+      to: [to],
+      reply_to: replyTo || undefined,
+      subject,
+      html
+    })
+  });
+
+  if (!response.ok) {
+    const detail = await response.text();
+    throw new Error(`Resend fout: ${response.status} ${detail}`);
+  }
+}
+
+// Bouwt de HTML-mail voor de invuller, met een bulletproof download-knop.
+function buildApplicantMail(naam, opdrachtText) {
+  const naamHtml = escapeHtml(naam);
+  const opdrachtHtml = escapeHtml(opdrachtText);
+
+  return `
+  <div style="font-family:Arial,Helvetica,sans-serif;max-width:600px;margin:0 auto;color:#1c2b2d;line-height:1.6;font-size:16px;">
+    <p>Hoi ${naamHtml},</p>
+    <p>fijn dat je meer wilt weten. Hieronder staat de zorgvraag die bij je vak en je regio past.</p>
+    <div style="background:#e6f4f2;border-radius:12px;padding:18px 20px;margin:20px 0;color:#0a5a55;">
+      ${opdrachtHtml}
+    </div>
+    <p>Over het tarief: jij bepaalt zelf je uurtarief. Het moet binnen het budget van de budgethouder passen en het zorgkantoor keurt het goed. Daar komt een servicebijdrage van SamenOntzorgen bovenop, en dat totaal leggen we voor aan de budgethouder.</p>
+    <p>Wil je deze opdracht? Download dan de app en schrijf je in. In de app krijg je deze zorgvraag binnen, en ook andere opdrachten die bij je passen. Zo blijf je opdrachten ontvangen, ook als juist deze ene keer niet doorgaat.</p>
+    <p style="margin-bottom:6px;">In de app:</p>
+    <ul style="margin:0 0 16px;padding-left:20px;">
+      <li>de app is gratis</li>
+      <li>je krijgt passende opdrachten rechtstreeks binnen</li>
+      <li>je bekijkt en beheert je opdrachten</li>
+      <li>je accordeert je uren</li>
+      <li>we helpen je met de zorgovereenkomst, en je facturen staan kloppend klaar</li>
+    </ul>
+    <p>De app en alle diensten zijn voor jou gratis, ze horen bij je lidmaatschap. De servicebijdrage gaat niet van jouw tarief af, hij komt bovenop het uurtarief dat jij wilt ontvangen, en zit zo in het totaalbedrag dat we aan de budgethouder voorleggen.</p>
+    <table role="presentation" cellpadding="0" cellspacing="0" border="0" style="margin:26px auto;">
+      <tr>
+        <td align="center" bgcolor="#0e7c76" style="border-radius:10px;">
+          <a href="${APP_LINK}" target="_blank" style="display:inline-block;background:#0e7c76;color:#ffffff;font-family:Arial,Helvetica,sans-serif;font-size:16px;font-weight:bold;text-decoration:none;padding:14px 30px;border-radius:10px;">Download de app</a>
+        </td>
+      </tr>
+    </table>
+    <p style="text-align:center;font-size:14px;color:#5d6763;margin-top:0;">
+      Werkt de knop niet? Ga naar <a href="${APP_LINK}" style="color:#0e7c76;">${APP_LINK}</a>
+    </p>
+    <p>Je zit nergens aan vast.</p>
+    <p style="margin-bottom:0;">Groet,<br />Wim<br />SamenOntzorgen</p>
+  </div>`;
+}
+
+// ---------------------------------------------------------------------------
+// Wachtrij voor de vertraagde mail aan de invuller
+// ---------------------------------------------------------------------------
+
+function loadQueue() {
+  try {
+    return JSON.parse(fs.readFileSync(QUEUE_FILE, 'utf8'));
+  } catch (e) {
+    return [];
+  }
+}
+
+function saveQueue(queue) {
+  try {
+    fs.writeFileSync(QUEUE_FILE, JSON.stringify(queue, null, 2));
+  } catch (e) {
+    console.error('Kon wachtrij niet opslaan:', e);
+  }
+}
+
+function enqueueApplicantMail(item) {
+  const queue = loadQueue();
+  queue.push(item);
+  saveQueue(queue);
+}
+
+let processing = false;
+async function processQueue() {
+  if (processing) return;
+  processing = true;
+  try {
+    const queue = loadQueue();
+    if (!queue.length) return;
+
+    const now = Date.now();
+    const remaining = [];
+    let changed = false;
+
+    for (const item of queue) {
+      if (item.sendAt > now) {
+        remaining.push(item);
+        continue;
+      }
+      try {
+        await sendMail({ to: item.to, subject: item.subject, html: item.html });
+        changed = true; // verstuurd, valt uit de wachtrij
+      } catch (err) {
+        item.attempts = (item.attempts || 0) + 1;
+        changed = true;
+        if (item.attempts < MAX_ATTEMPTS) {
+          remaining.push(item);
+          console.error(`Mail aan ${item.to} mislukt (poging ${item.attempts}), opnieuw later.`, err.message);
+        } else {
+          console.error(`Mail aan ${item.to} definitief opgegeven na ${item.attempts} pogingen.`, err.message);
+        }
+      }
+    }
+
+    if (changed) saveQueue(remaining);
+  } catch (err) {
+    console.error('Fout bij verwerken wachtrij:', err);
+  } finally {
+    processing = false;
+  }
+}
+
+// Periodieke check: elke minuut kijken of er mails klaarstaan.
+setInterval(processQueue, 60 * 1000);
+// Ook kort na de start een keer draaien, voor mails die tijdens een herstart
+// hun verzendtijdstip al gepasseerd zijn.
+setTimeout(processQueue, 10 * 1000);
+
+// ---------------------------------------------------------------------------
+// Formulier-endpoint
+// ---------------------------------------------------------------------------
+
+app.post('/contact', async (req, res) => {
+  const mailTo   = process.env.MAIL_TO   || 'info@samenontzorgen.nl';
+  const apiKey   = process.env.RESEND_API_KEY;
+  const { naam, email, telefoon, bericht, opdracht } = req.body;
 
   if (!naam || !bericht || (!email && !telefoon)) {
     return res.status(400).json({
@@ -50,19 +230,22 @@ app.post('/contact', async (req, res) => {
     return res.status(500).json({ success: false, message: 'Er ging iets mis bij het verzenden. Probeer het later nog eens.' });
   }
 
+  // Opdracht-code opzoeken.
+  const code = (opdracht || '').toString().trim().toLowerCase();
+  const opdrachtText = opdrachten[code];
+  const hasOpdracht = Boolean(opdrachtText);
+
+  // Extra regel voor het team als de opdracht-code ontbreekt of onbekend is.
+  const missingCodeWarning = hasOpdracht ? '' : `
+              <p style="color:#b3261e;"><strong>Let op:</strong> de opdracht-code ontbrak of was onbekend${code ? ` (ontvangen: ${escapeHtml(code)})` : ''}. Stuur zelf de passende zorgvraag toe.</p>`;
+
   try {
-    const response = await fetch('https://api.resend.com/emails', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${apiKey}`,
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        from: mailFrom,
-        to: [mailTo],
-        reply_to: email || undefined,
-        subject: `Nieuwe aanmelding ZZP van ${naam}`,
-        html: `
+    // 1. Melding aan het team, direct.
+    await sendMail({
+      to: mailTo,
+      replyTo: email || undefined,
+      subject: `Nieuwe aanmelding ZZP van ${naam}`,
+      html: `
           <div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;">
             <div style="background:#1c2b2d;padding:22px;border-radius:8px 8px 0 0;">
               <h1 style="color:#fff;margin:0;font-size:19px;">Nieuwe aanmelding via ZZP-opdracht pagina</h1>
@@ -72,16 +255,21 @@ app.post('/contact', async (req, res) => {
               ${email ? `<p style="color:#2C3E50;"><strong>E-mail:</strong> ${email}</p>` : ''}
               ${telefoon ? `<p style="color:#2C3E50;"><strong>Telefoon:</strong> ${telefoon}</p>` : ''}
               <hr style="border:none;border-top:1px solid #e0e0e0;margin:14px 0;">
-              <p style="color:#2C3E50;line-height:1.6;white-space:pre-wrap;">${bericht}</p>
+              <p style="color:#2C3E50;line-height:1.6;white-space:pre-wrap;">${bericht}</p>${missingCodeWarning}
             </div>
           </div>`
-      })
     });
 
-    if (!response.ok) {
-      const detail = await response.text();
-      console.error('Resend fout:', response.status, detail);
-      return res.status(500).json({ success: false, message: 'Er ging iets mis bij het verzenden. Probeer het later nog eens.' });
+    // 2. Mail aan de invuller, vertraagd inplannen.
+    if (email) {
+      const html = buildApplicantMail(naam, hasOpdracht ? opdrachtText : OPDRACHT_FALLBACK);
+      enqueueApplicantMail({
+        to: email,
+        subject: 'De zorgvraag waar we je over mailden',
+        html,
+        sendAt: Date.now() + delayMs(),
+        attempts: 0
+      });
     }
 
     res.json({ success: true, message: 'Verzonden.' });
